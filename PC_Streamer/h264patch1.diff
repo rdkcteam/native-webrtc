@@ -1,0 +1,15 @@
+diff --git a/pc/jsepsessiondescription.cc b/pc/jsepsessiondescription.cc
+index 13d0743..4aa0cf0 100644
+--- a/pc/jsepsessiondescription.cc
++++ b/pc/jsepsessiondescription.cc
+@@ -92,8 +92,8 @@ void UpdateConnectionAddress(
+ 
+ }  // namespace
+ 
+-const int JsepSessionDescription::kDefaultVideoCodecId = 100;
+-const char JsepSessionDescription::kDefaultVideoCodecName[] = "VP8";
++const int JsepSessionDescription::kDefaultVideoCodecId = 127;
++const char JsepSessionDescription::kDefaultVideoCodecName[] = "H264";
+ 
+ // TODO(steveanton): Remove this default implementation once Chromium has been
+ // updated.

@@ -1,0 +1,13 @@
+diff --git a/examples/peerconnection/server/main.cc b/examples/peerconnection/server/main.cc
+index 5214ca5..ca80a97 100644
+--- a/examples/peerconnection/server/main.cc
++++ b/examples/peerconnection/server/main.cc
+@@ -175,7 +175,7 @@ int main(int argc, char* argv[]) {
+       }
+     }
+ 
+-    clients.CheckForTimeout();
++ //   clients.CheckForTimeout();
+ 
+     if (FD_ISSET(listener.socket(), &socket_set)) {
+       DataSocket* s = listener.Accept();

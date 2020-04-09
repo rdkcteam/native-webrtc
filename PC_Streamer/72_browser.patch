@@ -1,0 +1,172 @@
+diff --git a/examples/peerconnection/client/conductor.cc b/examples/peerconnection/client/conductor.cc
+index a781c4a..4b6323d 100644
+--- a/examples/peerconnection/client/conductor.cc
++++ b/examples/peerconnection/client/conductor.cc
+@@ -105,11 +105,18 @@ bool Conductor::ReinitializePeerConnectionForLoopback() {
+       peer_connection_->GetSenders();
+   peer_connection_ = nullptr;
+   if (CreatePeerConnection(/*dtls=*/false)) {
+-    for (const auto& sender : senders) {
+-      peer_connection_->AddTrack(sender->track(), sender->stream_ids());
+-    }
++//    for (const auto& sender : senders) {
++  //    peer_connection_->AddTrack(sender->track(), sender->stream_ids());
++   // }
++
++//Passing an object to specify that this peer should only receive video and not audio.
++
++webrtc::PeerConnectionInterface::RTCOfferAnswerOptions config;
++config.offer_to_receive_video = 1;
++config.offer_to_receive_audio = 0;
++
+     peer_connection_->CreateOffer(
+-        this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
++        this,/* webrtc::PeerConnectionInterface::RTCOfferAnswerOptions()*/config);
+   }
+   return peer_connection_ != nullptr;
+ }
+@@ -143,6 +150,7 @@ void Conductor::EnsureStreamingUI() {
+   RTC_DCHECK(peer_connection_);
+   if (main_wnd_->IsWindow()) {
+     if (main_wnd_->current_ui() != MainWindow::STREAMING)
++        printf("/n ***SwitchToStreamingUI\n");
+       main_wnd_->SwitchToStreamingUI();
+   }
+ }
+@@ -295,9 +303,13 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
+     peer_connection_->SetRemoteDescription(
+         DummySetSessionDescriptionObserver::Create(),
+         session_description.release());
++//Passing an object to specify that this peer should only receive video and not audio.
+     if (type == webrtc::SdpType::kOffer) {
++       webrtc::PeerConnectionInterface::RTCOfferAnswerOptions config;
++config.offer_to_receive_video = 1;
++config.offer_to_receive_audio = 0;
+       peer_connection_->CreateAnswer(
+-          this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
++          this,/* webrtc::PeerConnectionInterface::RTCOfferAnswerOptions()*/config);
+     }
+   } else {
+     std::string sdp_mid;
+@@ -362,11 +374,16 @@ void Conductor::ConnectToPeer(int peer_id) {
+         "Error", "We only support connecting to one peer at a time", true);
+     return;
+   }
++//Passing an object to specify that this peer should only receive video and not audio.
+ 
+   if (InitializePeerConnection()) {
+     peer_id_ = peer_id;
++webrtc::PeerConnectionInterface::RTCOfferAnswerOptions config;
++config.offer_to_receive_video = 1;
++config.offer_to_receive_audio = 0;
++
+     peer_connection_->CreateOffer(
+-        this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
++        this, /*webrtc::PeerConnectionInterface::RTCOfferAnswerOptions()*/config);
+   } else {
+     main_wnd_->MessageBox("Error", "Failed to initialize PeerConnection", true);
+   }
+@@ -404,10 +421,11 @@ std::unique_ptr<cricket::VideoCapturer> Conductor::OpenVideoCaptureDevice() {
+ 
+ void Conductor::AddTracks() {
+   if (!peer_connection_->GetSenders().empty()) {
++     printf("\n Already added tracks.\n");
+     return;  // Already added tracks.
+   }
+ 
+-  rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
++/*  rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
+       peer_connection_factory_->CreateAudioTrack(
+           kAudioLabel, peer_connection_factory_->CreateAudioSource(
+                            cricket::AudioOptions())));
+@@ -431,7 +449,7 @@ void Conductor::AddTracks() {
+       RTC_LOG(LS_ERROR) << "Failed to add video track to PeerConnection: "
+                         << result_or_error.error().message();
+     }
+-  } else {
++  } */else {
+     RTC_LOG(LS_ERROR) << "OpenVideoCaptureDevice failed";
+   }
+ 
+@@ -494,6 +512,7 @@ void Conductor::UIThreadCallback(int msg_id, void* data) {
+     }
+ 
+     case NEW_TRACK_ADDED: {
++     printf("\n*************NEW_TRACK_ADDED***********\n");
+       auto* track = reinterpret_cast<webrtc::MediaStreamTrackInterface*>(data);
+       if (track->kind() == webrtc::MediaStreamTrackInterface::kVideoKind) {
+         auto* video_track = static_cast<webrtc::VideoTrackInterface*>(track);
+@@ -501,6 +520,7 @@ void Conductor::UIThreadCallback(int msg_id, void* data) {
+       }
+       track->Release();
+       break;
++
+     }
+ 
+     case TRACK_REMOVED: {
+diff --git a/examples/peerconnection/client/linux/main_wnd.cc b/examples/peerconnection/client/linux/main_wnd.cc
+index 2f7777d..9a8d0ca 100644
+--- a/examples/peerconnection/client/linux/main_wnd.cc
++++ b/examples/peerconnection/client/linux/main_wnd.cc
+@@ -195,6 +195,7 @@ void GtkMainWnd::StopLocalRenderer() {
+ 
+ void GtkMainWnd::StartRemoteRenderer(
+     webrtc::VideoTrackInterface* remote_video) {
++   printf("/n******StartRemoteRenderer********");
+   remote_renderer_.reset(new VideoRenderer(this, remote_video));
+ }
+ 
+@@ -510,6 +511,7 @@ GtkMainWnd::VideoRenderer::VideoRenderer(
+       height_(0),
+       main_wnd_(main_wnd),
+       rendered_track_(track_to_render) {
++ printf("/nVideoRenderer::track_to_render");
+   rendered_track_->AddOrUpdateSink(this, rtc::VideoSinkWants());
+ }
+ 
+@@ -546,7 +548,7 @@ void GtkMainWnd::VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
+   // This was supposed to be a call to libyuv::I420ToRGBA but it was resulting
+   // in a reddish video output (see https://bugs.webrtc.org/6857) because it
+   // was producing an unexpected byte order (ABGR, byte swapped).
+-  libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
++  libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
+                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
+                      image_.get(), width_ * 4, buffer->width(),
+                      buffer->height());
+diff --git a/p2p/client/basicportallocator.cc b/p2p/client/basicportallocator.cc
+index 47f13d0..ca61f89 100644
+--- a/p2p/client/basicportallocator.cc
++++ b/p2p/client/basicportallocator.cc
+@@ -930,8 +930,10 @@ void BasicPortAllocatorSession::OnCandidateReady(Port* port,
+   bool pruned = false;
+   if (CandidatePairable(c, port) && !data->has_pairable_candidate()) {
+     data->set_has_pairable_candidate(true);
++    printf("Pairable candidate \n");
+ 
+     if (prune_turn_ports_ && port->Type() == RELAY_PORT_TYPE) {
++      printf("Relay port \n");
+       pruned = PruneTurnPorts(port);
+     }
+     // If the current port is not pruned yet, SignalPortReady.
+@@ -1061,10 +1063,13 @@ bool BasicPortAllocatorSession::CheckCandidateFilter(const Candidate& c) const {
+   }
+ 
+   if (c.type() == RELAY_PORT_TYPE) {
++    printf("Is relay port type \n");
+     return ((filter & CF_RELAY) != 0);
+   } else if (c.type() == STUN_PORT_TYPE) {
++    printf("Is stun port type \n");
+     return ((filter & CF_REFLEXIVE) != 0);
+   } else if (c.type() == LOCAL_PORT_TYPE) {
++    printf("Is local port type \n");
+     if ((filter & CF_REFLEXIVE) && !c.address().IsPrivateIP()) {
+       // We allow host candidates if the filter allows server-reflexive
+       // candidates and the candidate is a public IP. Because we don't generate
+@@ -1072,6 +1077,7 @@ bool BasicPortAllocatorSession::CheckCandidateFilter(const Candidate& c) const {
+       // candidate (i.e. when the host candidate is a public IP), filtering to
+       // only server-reflexive candidates won't work right when the host
+       // candidates have public IPs.
++      printf("Is public IP \n");
+       return true;
+     }
+ 

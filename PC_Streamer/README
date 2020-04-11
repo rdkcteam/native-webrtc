@@ -7,11 +7,11 @@ Step for testing Camera side
 •	Execute the script “webrtc_cam.sh” (./webrtc_cam.sh)
 •	Then connect webcam to PC. In that PC change directory to webrtc-checkout Folder
         e.g., cd  webrtc-checkout /src/out/Defaults.
-•	Execute “. /Peerconnection_Server”, then you should see the following message indicating that it is running:
+•	Execute “. /peerconnection_Server”, then you should see the following message indicating that it is running:
         Server listening on port 8888
 •	In another terminal cd webrtc-checkout/out/Defaults
 •	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:’pwd’(Export path to /out/Defaults)
-•	Execute “./Peerconnection _client “
+•	Execute “./peerconnection _client “
 •	Enter the server address and listening port on command line
 
 
@@ -25,7 +25,7 @@ Step for Testing Viewing side
 •	Then move in to out/Default folder of webrtc checkout folder.
         e.g., cd  webrtc-checkout /src/out/Defaults.
 •	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:’pwd’(Export path to /out/Defaults)
-•	Then Execute “. /Peerconnection_client”.
+•	Then Execute “. /peerconnection_client”.
 •	Now a window for entering server IP and port will display.
 •	Enter the server hosting’s machine IP and listening port to that GTK window.
 •	Click on connect button.

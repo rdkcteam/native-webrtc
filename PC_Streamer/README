@@ -1,0 +1,35 @@
+Step for testing Camera side 
+
+
+•	git clone https://github.com/rdkcteam/native-webrtc to one ubuntu PC
+•	Move to PC_Streamer directory in PC
+•	$sudo chmod +x webrtc_cam.sh
+•	Execute the script “webrtc_cam.sh” (./webrtc_cam.sh)
+•	Then connect webcam to PC. In that PC change directory to webrtc-checkout Folder
+        e.g., cd  webrtc-checkout /src/out/Defaults.
+•	Execute “. /Peerconnection_Server”, then you should see the following message indicating that it is running:
+        Server listening on port 8888
+•	In another terminal cd webrtc-checkout/out/Defaults
+•	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:’pwd’(Export path to /out/Defaults)
+•	Execute “./Peerconnection _client “
+•	Enter the server address and listening port on command line
+
+
+Step for Testing Viewing side
+
+
+•       git clone https://github.com/rdkcteam/native-webrtc to another PC
+•	Move to PC_Streamer directory in PC(not remotely)
+•	$sudo chmod +x webrtc_browser
+•	Execute the script “webrtc_browser” (“./webrtc_browser”)
+•	Then move in to out/Default folder of webrtc checkout folder.
+        e.g., cd  webrtc-checkout /src/out/Defaults.
+•	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:’pwd’(Export path to /out/Defaults)
+•	Then Execute “. /Peerconnection_client”.
+•	Now a window for entering server IP and port will display.
+•	Enter the server hosting’s machine IP and listening port to that GTK window.
+•	Click on connect button.
+•	Double click on the peer name list down in the window
+•	Verify the video captured by the webcam connected in another PC display in the GTK window.
+
+

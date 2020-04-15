@@ -42,7 +42,7 @@ $./ peerconnection_client
 1. git clone (https://github.com/rdkcteam/native-webrtc)
 2. Move to folder  <local_path>/native-webrtc/PC_Streamer
 ```
-$cd <local_path>/native-webrtc/PC_Streamerr
+$cd <local_path>/native-webrtc/PC_Streamer
 ````
 ```
 $sudo chmod +x webrtc_cam.sh
